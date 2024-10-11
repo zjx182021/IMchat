@@ -46,7 +46,8 @@ func Router() *gin.Engine {
 	r.GET("/user/send", service.SendMsg)
 	r.GET("/user/sendMsg", service.SendMsg)
 	r.GET("/user/sendUserMsg", service.SendUserMsg)
+	r.POST("/attach/upload", service.Upload)
 	// r.POST("/user/Register", service.ToRegister)
-
+	r.POST("/contact/addfriend", service.AddFriend)
 	return r
 }

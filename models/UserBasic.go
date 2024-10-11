@@ -59,11 +59,15 @@ func FindUserByname(user *UserBasic) *gorm.DB {
 }
 
 func FindUserByphone(user *UserBasic) *gorm.DB {
-	return utils.DB.Where("name =?", user.Phone).First(&user)
+	return utils.DB.Where("phone =?", user.Phone).First(&user)
 }
 
 func FindUserByemail(user *UserBasic) *gorm.DB {
-	return utils.DB.Where("name =?", user.Email).First(&user)
+	return utils.DB.Where("email =?", user.Email).First(&user)
+}
+
+func FindUserByid(user *UserBasic) *gorm.DB {
+	return utils.DB.Where("id =?", user.ID).First(&user)
 }
 
 func Updateidentity(user *UserBasic) *gorm.DB {

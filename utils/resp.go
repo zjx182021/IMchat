@@ -14,10 +14,10 @@ type H struct {
 }
 
 func RespFail(w http.ResponseWriter, msg string) {
-	Resp(w, 0, nil, msg)
+	Resp(w, -1, nil, msg)
 }
 func RespOK(w http.ResponseWriter, msg string) {
-	Resp(w, -1, nil, msg)
+	Resp(w, 0, nil, msg)
 }
 
 func Resp(w http.ResponseWriter, code int, data any, msg string) {
@@ -43,9 +43,9 @@ func RespList(w http.ResponseWriter, code int, data any, total any) {
 	w.Header().Set("content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	h := H{
-		Code: code,
-		Data: data,
-		Rows: total,
+		Code:  code,
+		Total: total,
+		Rows:  data,
 	}
 	ret, err := json.Marshal(h)
 	if err != nil {

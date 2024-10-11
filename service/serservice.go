@@ -4,8 +4,11 @@ import (
 	"TM_chat/models"
 	"TM_chat/utils"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -207,7 +210,7 @@ func SendUserMsg(ctx *gin.Context) {
 
 func SearchFriends(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.PostForm("userId"))
-	fmt.Println(id)
+
 	if err != nil {
 		ctx.String(http.StatusInternalServerError, "userId error")
 		return
@@ -218,5 +221,57 @@ func SearchFriends(ctx *gin.Context) {
 	// 	"message": "查找成功",
 	// 	"data":    user,
 	// })
+	fmt.Println("userid:", id, "friend num:", len(user))
 	utils.RespOKList(ctx.Writer, user, len(user))
+}
+func Upload(ctx *gin.Context) {
+	writer := ctx.Writer
+	req := ctx.Request
+	srcFile, head, err := req.FormFile("file")
+	if err != nil {
+		utils.RespFail(writer, err.Error())
+		return
+	}
+	suffix := ".png"
+	ofilName := head.Filename
+	tem := strings.Split(ofilName, ".")
+	if len(tem) > 1 {
+		suffix = "." + tem[len(tem)-1]
+	}
+	fileName := fmt.Sprintf("%d%04d%s", time.Now().Unix(), rand.Int31(), suffix)
+	dstFile, err := os.Create("./asset/upload/" + fileName)
+	if err != nil {
+		utils.RespFail(writer, err.Error())
+		return
+	}
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		utils.RespFail(writer, err.Error())
+		return
+	}
+	url := "./asset/upload/" + fileName
+	utils.RespOK(writer, url+"upload OK")
+}
+
+func AddFriend(ctx *gin.Context) {
+	userId, err := strconv.Atoi(ctx.Request.FormValue("userId"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "userId error")
+		return
+	}
+	targetName := ctx.Request.FormValue("targetName")
+	fmt.Print("targetName:   ", ctx.Request.FormValue("targetName"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "targetName error")
+		return
+	}
+	code := models.AddFriend(uint(userId), targetName)
+	if code == 0 {
+		utils.RespOK(ctx.Writer, "添加成功")
+		ctx.String(http.StatusOK, "添加成功")
+	} else if code == -1 {
+		utils.RespFail(ctx.Writer, "添加失败")
+		ctx.String(http.StatusOK, "添加失败")
+	}
+
 }
