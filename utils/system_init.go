@@ -49,6 +49,14 @@ func InitRedis() {
 		PoolSize:     viper.GetInt("redis.poolSize"),
 		MinIdleConns: viper.GetInt("redis.minIdelConn"),
 	})
+	ctx := context.Background()
+	_, err := REDIS.Ping(ctx).Result()
+	if err != nil {
+		fmt.Errorf("failed to connect to Redis: %w", err)
+	}
+
+	fmt.Println("Connected to Redis")
+
 }
 
 const (

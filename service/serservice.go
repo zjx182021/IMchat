@@ -250,7 +250,7 @@ func Upload(ctx *gin.Context) {
 		return
 	}
 	url := "./asset/upload/" + fileName
-	utils.RespOK(writer, url+"upload OK")
+	utils.RespOK(writer, url, "upload OK")
 }
 
 func AddFriend(ctx *gin.Context) {
@@ -261,17 +261,89 @@ func AddFriend(ctx *gin.Context) {
 	}
 	targetName := ctx.Request.FormValue("targetName")
 	fmt.Print("targetName:   ", ctx.Request.FormValue("targetName"))
-	if err != nil {
-		ctx.String(http.StatusInternalServerError, "targetName error")
-		return
-	}
 	code := models.AddFriend(uint(userId), targetName)
 	if code == 0 {
-		utils.RespOK(ctx.Writer, "添加成功")
+		utils.RespOK(ctx.Writer, code, "添加成功")
 		ctx.String(http.StatusOK, "添加成功")
 	} else if code == -1 {
 		utils.RespFail(ctx.Writer, "添加失败")
 		ctx.String(http.StatusOK, "添加失败")
 	}
 
+}
+
+func CreateCommunity(ctx *gin.Context) {
+	ownerid, err := strconv.Atoi(ctx.PostForm("ownerId"))
+
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "ownerId error")
+		return
+	}
+	name := ctx.PostForm("name")
+	c := &models.Community{}
+	c.OwnerId = uint(ownerid)
+	c.Name = name
+	code := models.CreateCommunity(c)
+	if code == 0 {
+		utils.RespOK(ctx.Writer, code, "创建成功")
+		ctx.String(http.StatusOK, "创建成功")
+	} else if code == -1 {
+		utils.RespFail(ctx.Writer, "创建失败")
+		ctx.String(http.StatusOK, "创建失败")
+	}
+}
+
+func LoadCommunity(ctx *gin.Context) {
+	ownerId, _ := strconv.Atoi(ctx.PostForm("ownerId"))
+	data := models.LoadCommunity(uint(ownerId))
+	if len(data) != 0 {
+		utils.RespList(ctx.Writer, 0, data, "load finish")
+		return
+	}
+	utils.RespFail(ctx.Writer, "load failed")
+}
+func JoinGroups(ctx *gin.Context) {
+	userId, err := strconv.Atoi(ctx.PostForm("userId"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "userId error")
+		return
+	}
+	communityId := ctx.PostForm("comId")
+
+	data := models.JoinGroup(uint(userId), communityId)
+	if data == 0 {
+		utils.RespOK(ctx.Writer, data, "join finish")
+		return
+	}
+	utils.RespFail(ctx.Writer, "join failed")
+}
+
+func RedisMsg(ctx *gin.Context) {
+	userIdA, err := strconv.Atoi(ctx.PostForm("userIdA"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "userIdA error")
+		return
+	}
+	userIdB, err := strconv.Atoi(ctx.PostForm("userIdB"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "userIdB error")
+		return
+	}
+	start, err := strconv.Atoi(ctx.PostForm("start"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "start error")
+		return
+	}
+	end, err := strconv.Atoi(ctx.PostForm("end"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "end error")
+		return
+	}
+	isRev, err := strconv.ParseBool(ctx.PostForm("isRev"))
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "isRev error")
+		return
+	}
+	res := models.RedisMsg(int64(userIdA), int64(userIdB), int64(start), int64(end), isRev)
+	utils.RespOKList(ctx.Writer, "ok", res)
 }

@@ -31,6 +31,7 @@ func Router() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	r.Static("/asset", "asset/")
+	r.StaticFile("/favicon.ico", "asset/images/favicon.ico")
 	r.LoadHTMLFiles("views/**/*")
 	r.GET("/", service.GetIndex)
 	r.GET("/index", service.GetIndex)
@@ -49,5 +50,9 @@ func Router() *gin.Engine {
 	r.POST("/attach/upload", service.Upload)
 	// r.POST("/user/Register", service.ToRegister)
 	r.POST("/contact/addfriend", service.AddFriend)
+	r.POST("/contact/createCommunity", service.CreateCommunity)
+	r.POST("/contact/loadcommunity", service.LoadCommunity)
+	r.POST("/contact/joinGroup", service.JoinGroups)
+	r.POST("/user/redisMsg", service.RedisMsg)
 	return r
 }

@@ -1,0 +1,1 @@
+SELECT * FROM `ginchat`.`contacts` LIMIT 1000;
